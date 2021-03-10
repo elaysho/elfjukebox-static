@@ -1,0 +1,53 @@
+<html>
+    <head> 
+        <title>Elf Juke Box</title>
+
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+        <link rel="stylesheet" href="css/style.css">
+        <link rel="preconnect" href="https://fonts.gstatic.com">
+        <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Fredoka+One&family=Staatliches&display=swap" rel="stylesheet">
+        
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+        
+        <!-- JavaScript Bundle with Popper -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/js/bootstrap.bundle.min.js" integrity="sha384-b5kHyXgcpbZJO/tY9Ul7kGkf1S0CWuKcCD38l8YkeH8z8QjE0GmW1gYU5S9FOnJ0" crossorigin="anonymous"></script>
+        
+        <!-- The core Firebase JS SDK is always required and must be listed first -->
+        <script src="https://www.gstatic.com/firebasejs/8.2.10/firebase-app.js"></script>
+
+        <!-- TODO: Add SDKs for Firebase products that you want to use
+            https://firebase.google.com/docs/web/setup#available-libraries -->
+
+        <script src="https://www.gstatic.com/firebasejs/8.2.10/firebase-app.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/8.2.10/firebase-firestore.js"></script>
+        <script src="js/firebaseConfig.js"></script>
+
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10.15.5/dist/sweetalert2.all.min.js" integrity="sha256-92U7H+uBjYAJfmb+iNPi7DPoj795ZCTY4ZYmplsn/fQ=" crossorigin="anonymous"></script>
+        <script src="https://www.youtube.com/iframe_api"></script>
+    </head>
+    <body class="">
+        <div class="container h-100 d-flex justify-content-center align-items-center">
+            <div class="ejb__mainContainer">
+                <div class="ejb__titleContainer">
+                    <img class="mr-3" src="images/jukebox-303367_1280.png">
+                    <div class="">
+                        <h1 class="display-3"> ELF JUKEBOX </h1>
+                        <span> Guess a Super Junior song by hearing it for a second.</span>
+                    </div>
+                </div>
+                <div class="ejb__buttonContainer w-50 mt-3 mx-auto">
+                    <button type="button" class="btn btn-secondary btn-block btn__hostGame"> Host </button>
+                    <button type="button" class="btn btn-secondary btn-block btn__playGame"> Play </button>
+                </div>
+
+                <div class="youtube-audio" data-video="VIDEO_ID"
+                        data-autoplay="1"
+                        data-loop="1"
+                        id="kEo14-UOM80">
+                </div>
+            </div>
+        </div>
+
+        <script src="js/index.js"></script>
+    </body>
+</html>

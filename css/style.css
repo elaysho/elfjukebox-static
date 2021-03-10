@@ -1,0 +1,68 @@
+:root {
+    --color-base-blue: #0f52ba;
+    --color-base-dark-gray: #202020;
+    --color-base-black: #000000;
+    --color-base-white: #ffffff;
+    --color-base-white-smoke: #f5f5f5;
+
+    --font-bungee: 'Bungee', cursive;
+    --font-fredoka-one: 'Fredoka One', cursive;
+    --font-staatliches: 'Staatliches', cursive;
+}
+
+body {
+    background-color: var(--color-base-white-smoke);
+    background-image: url('../images/asfalt-dark.png');
+    background-repeat: repeat;
+    background-size: 50px;
+    color: var(--color-base-black);
+    font-size: 16px;
+}
+
+.jukebox__bg {
+    background-image: url('../images/bg.jpg');
+    background-repeat: repeat;
+    background-size: 500px;
+}
+
+.ejb__mainContainer {
+    margin-top: 50px;
+    border-radius: 20px;
+}
+
+.ejb__titleContainer, .ejb__buttonContainer {
+    width: 100%!important;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+}
+
+.ejb__buttonContainer {
+    flex-direction: column;
+}
+
+.ejb__titleContainer img {
+    width: 100px;
+    align-self: center;
+    margin-bottom: 20px;
+}
+
+.ejb__titleContainer h1 {
+    font-family: var(--font-staatliches);
+    font-weight: bolder;
+    align-self: center;
+    margin-top: 25px;
+}
+
+.ejb__titleContainer span, .ejb__buttonContainer button {
+    font-family: var(--font-staatliches);
+    align-self: center;
+}
+
+.ejb__buttonContainer button {
+    font-size: 32px;
+}
+
+.swal2-input {
+    margin-bottom: .50em!important;
+}
