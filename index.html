@@ -1,0 +1,57 @@
+<html>
+    <head> 
+        <title>ELF Jukebox</title>
+
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+        <link rel="stylesheet" href="css/style.css">
+        <link rel="preconnect" href="https://fonts.gstatic.com">
+        <link href="https://fonts.googleapis.com/css2?family=Staatliches&display=swap" rel="stylesheet">
+        
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/feather-icons/4.28.0/feather.min.js" integrity="sha512-7x3zila4t2qNycrtZ31HO0NnJr8kg2VI67YLoRSyi9hGhRN66FHYWr7Axa9Y1J9tGYHVBPqIjSE1ogHrJTz51g==" crossorigin="anonymous"></script>
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+        
+        <!-- JavaScript Bundle with Popper -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/js/bootstrap.bundle.min.js" integrity="sha384-b5kHyXgcpbZJO/tY9Ul7kGkf1S0CWuKcCD38l8YkeH8z8QjE0GmW1gYU5S9FOnJ0" crossorigin="anonymous"></script>
+        
+        <!-- The core Firebase JS SDK is always required and must be listed first -->
+        <script src="https://www.gstatic.com/firebasejs/8.2.10/firebase-app.js"></script>
+
+        <!-- TODO: Add SDKs for Firebase products that you want to use
+            https://firebase.google.com/docs/web/setup#available-libraries -->
+
+        <script src="https://www.gstatic.com/firebasejs/8.2.10/firebase-app.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/8.2.10/firebase-firestore.js"></script>
+        <script src="js/firebaseConfig.js"></script>
+
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10.15.5/dist/sweetalert2.all.min.js" integrity="sha256-92U7H+uBjYAJfmb+iNPi7DPoj795ZCTY4ZYmplsn/fQ=" crossorigin="anonymous"></script>
+        <script src="https://unpkg.com/feather-icons"></script>
+
+        <script src="js/utils.js"></script>
+        <script src="js/constants.js"></script>
+        <script src="js/audioPlayer.js"></script>
+        <script src="js/index.js"></script>
+    </head>
+    <body class="">
+        <div class="container h-100 d-flex justify-content-center align-items-center">
+            <div class="ejb__mainContainer">
+                <div class="ejb__titleContainer">
+                    <img class="mr-3" src="images/jukebox-303367_1280.png">
+                    <div class="">
+                        <h1 class="display-3"> ELF JUKEBOX </h1>
+                        <span> Guess a Super Junior song by hearing it for a second.</span>
+                    </div>
+                </div>
+                <div class="ejb__buttonContainer w-50 mt-3 mx-auto">
+                    <button type="button" class="btn btn-secondary btn-block btn__hostGame"> Host </button>
+                    <button type="button" class="btn btn-secondary btn-block btn__playGame"> Play </button>
+                </div>
+
+                <div id="audioPlayer"></div>
+            </div>
+        </div>
+        <div class="align-self-baseline p-3" style="box-sizing: border-box;"> 
+            <p class="float-left"> v0.0.1 (alpha) </p>
+            <a class="btn btn-sm btn-icon btn-secondary float-right btn__info"><i data-feather="help-circle"></i></a>
+        </div>
+    </body>
+</html>

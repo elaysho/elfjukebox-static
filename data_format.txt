@@ -1,0 +1,29 @@
+
+data format
+
+[game_settings] {
+
+}
+
+[games] {
+    - code
+    - host_details {
+        nickname,
+        password
+    }
+    - songs [
+        {
+            answer,
+            id,
+            link,
+            startSeconds: 0,
+            endSeconds: 1
+        }
+    ]
+}
+
+[players] {
+    nickname,
+    game_code,
+    correct
+}

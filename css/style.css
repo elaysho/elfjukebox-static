@@ -1,0 +1,150 @@
+:root {
+    --color-base-blue: #0f52ba;
+    --color-base-dark-gray: #202020;
+    --color-base-black: #000000;
+    --color-base-white: #ffffff;
+    --color-base-white-smoke: #f5f5f5;
+
+    --font-staatliches: 'Staatliches', cursive;
+}
+
+body {
+    background-color: var(--color-base-white-smoke);
+    background-image: url('../images/bg-patterns/asfalt-dark.png');
+    background-repeat: repeat;
+    background-size: 50px;
+    color: var(--color-base-black);
+    font-size: 16px;
+}
+
+.jukebox__bg {
+    background-image: url('../images/bg-patterns/jukebox.jpg');
+    background-repeat: repeat;
+    background-size: 500px;
+}
+
+.ejb__mainContainer {
+    margin-top: 50px;
+    border-radius: 20px;
+}
+
+.ejb__titleContainer, .ejb__buttonContainer {
+    width: 100%!important;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+}
+
+.ejb__buttonContainer {
+    flex-direction: column;
+}
+
+.ejb__titleContainer img {
+    width: 100px;
+    align-self: center;
+    margin-bottom: 20px;
+}
+
+.ejb__titleContainer h1 {
+    font-family: var(--font-staatliches);
+    font-weight: bolder;
+    align-self: center;
+    margin-top: 25px;
+}
+
+.ejb__titleContainer span, .ejb__buttonContainer button {
+    font-family: var(--font-staatliches);
+    align-self: center;
+}
+
+.ejb__buttonContainer button {
+    font-size: 32px;
+}
+
+.swal2-input {
+    margin-bottom: .50em!important;
+    margin-top: .50em!important;
+}
+
+.swal2-html-container iframe {
+    width: 100%;
+    overflow-x: hidden;
+}
+
+.input__error {
+    border: 2px solid red!important;
+}
+
+input.input__error:focus {
+    box-shadow: 0 0 0 3px rgb(250 0 0 / 25%)!important;
+}
+
+input.input__exampleLink {
+    background-color: lightgray!important;
+    margin-top: .50em!important;
+}
+
+.swal2-html-container p {
+    margin-bottom: 0.50em!important;
+}
+
+.song__group {
+    padding: 10px 20px 10px 20px;
+    border: 2px solid darkgray;
+    border-radius: 10px;
+    margin-top: 30px;
+    margin-bottom: 30px;
+    text-align: left;
+}
+
+.btn__addSongs {
+    border: 0;
+    border-radius: .25em;
+    background: initial;
+    background-color: #2778c4;
+    color: #fff;
+    font-size: 1.0625em;
+}
+
+.btn__deleteSongs {
+    width: 40px;
+    height: 40px;
+    position: relative;
+    top: -245px;
+    right: -35px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn__deleteSongs svg {
+    width: 20px;
+    height: 20px;
+}
+
+.border__error {
+    border: 2px solid red;
+}
+
+.input__gameCode, .input__gameUrl {
+    background-color: lightgray!important;
+    text-align: center;
+    cursor: pointer;
+}
+
+.twitter__icon, .github__icon {
+    width: 24px;
+    height: 24px;
+    background-size: contain;
+    margin-left: 10px;
+    margin-right: 10xp;
+}
+
+.twitter__icon {
+    background-image: url('../images/twitter-icon.png');
+}
+
+.github__icon {
+    background-image: url('../images/github-icon.png');
+}
