@@ -33,6 +33,11 @@ var index = (function() {
         $(document).on('click', '.input__gameCode', utils.copyToClipBoard);
         $(document).on('click', '.input__gameUrl', utils.copyToClipBoard);
         $(document).on('click', '.btn__repeatSong', repeatSong);
+
+        $(document).on('keyup change', '.input__songStartsAt', function() {
+            var startsAt = parseInt($(this).val());
+            $(this).next().val(startsAt + 1);
+        });
         
         $(document).on('keyup change', '.input__error', function() {
             utils.checkInputs([$(this)]);

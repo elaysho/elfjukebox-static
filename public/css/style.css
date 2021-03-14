@@ -110,7 +110,7 @@ input.input__exampleLink {
     width: 40px;
     height: 40px;
     position: relative;
-    top: -245px;
+    top: -325px;
     right: -35px;
     border-radius: 50%;
     display: flex;
@@ -132,6 +132,12 @@ input.input__exampleLink {
     text-align: center;
     cursor: pointer;
 }
+
+/* .input__songEndsAt {
+    background-color: darkgray!important;
+    text-align: left;
+    color: var(--color-base-white)!important;
+} */
 
 .twitter__icon, .github__icon {
     width: 24px;

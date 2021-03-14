@@ -1,9 +1,13 @@
 $(document).ready(function() {
     var tag = document.createElement('script');
 
-    tag.src = API_SRC;
-    var firstScriptTag = document.getElementsByTagName('script')[0];
-    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+    try {
+        tag.src = API_SRC;
+        var firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+    } catch(e) {
+        console.error(e);
+    }
 });
 
 const TIME_LIMIT = 1000;

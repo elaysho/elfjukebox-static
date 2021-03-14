@@ -35,8 +35,8 @@ var htmlTemplates = (function() {
                                 '<div class="">' +
                                     '<input type="text" name="song_link" class="swal2-input" placeholder="Paste song youtube link here" data-required="required">' +
                                     '<input type="text" name="answer" class="swal2-input" placeholder="Song Title" data-required="required">' +
-                                    '<input type="text" name="startSeconds" class="swal2-input mr-1" placeholder="Starts At" style="width: 48%" data-required="required">' +
-                                    '<input type="text" name="endSeconds" class="swal2-input ml-2" placeholder="Ends At" style="width: 48%" data-required="required">' +
+                                    '<input type="number" min="0" max="300" name="startSeconds" class="swal2-input input__songStartsAt" value="0" placeholder="Enter seconds where song starts at" style="max-width: 100%!important;" data-required="required">' +
+                                    '<input type="number" min="0" max="300" name="endSeconds" class="swal2-input input__songEndsAt" value="1" placeholder="Song ends at" style="max-width: 100%!important;" data-required="required" disabled>' +
                                 '</div>' +
                                 '<a class="btn btn-sm btn-round btn-danger float-right btn__deleteSongs"> <i data-feather="x"></i> </a>' +
                             '</div>';
@@ -72,12 +72,14 @@ var htmlTemplates = (function() {
                             'ELF Jukebox is still in it\'s alpha version and I\'m still working on it. ^^ </p> </br>' +
                             '<p> For the mean time, if there\'s a problem (<b>i.e</b> sounds not playing, next button unclickable), just refresh it! If problem persists, kindly leave me a DM ' +
                                 'at <b><a href="https://twitter.com/haerionne">@haerionne</a></b> so I can help you. ' +
-                            'Note that the plan used for hosting this game and for storing it\'s data is just a free plan, so there would be ' +
-                                'limitations. </p> </br>' +
+                            '<em>Note that the plan used for hosting this game and for storing it\'s data is just a free plan, so there would be ' +
+                                'limitations. </em> </p> </br>' +
                             
                             '<h4>Credits:</h4>' +
-                            '<p><a href="https://pixabay.com/users/clker-free-vector-images-3736/?utm_source=link-attribution&amp;utm_medium=referral&amp;utm_campaign=image&amp;utm_content=303367">Jukebox Vector</a>,' +
-                                ' relies heavily on <a href="https://sweetalert2.github.io/">SweetAlert2</a>, uses Firestore for Database</p>' +
+                            '<p><a href="https://pixabay.com/users/clker-free-vector-images-3736/?utm_source=link-attribution&amp;utm_medium=referral&amp;utm_campaign=image&amp;utm_content=303367">Jukebox Vector</a>\'s creator, ' +
+                                ' relies heavily on <a href="https://sweetalert2.github.io/">SweetAlert2</a>, uses Firestore for Database & Hosting, Youtube iFrame API for source & player of sounds, ' + 
+                                ' <a href="https://github.com/Tencent/vConsole">vConsole</a> for mobile debugging</p> </br>' +
+                            '<p class="text-center"> I\'m in no way affiliated with the organizations/persons mentioned above. </p>' +
                          '</div>';
 
     const WEBGAME_FOOTER = '<a href="https://twitter.com/haerionne"><div class="twitter__icon"></div></a> <a href="https://github.com/elaysho/elfjukebox-static"><div class="github__icon"></div></a>';
@@ -139,7 +141,7 @@ var swalConfigs = (function() {
         {
             title: 'Add Songs',
             html: htmlTemplates.ADD_SONG_HTML,
-            allowOutsideClick: () => !Swal.isLoading(),
+            allowOutsideClick: () => false,
             preConfirm: () => {
                 var inputs = $('.swal2-html-container :input');
                 if(inputs.length > 0) {
@@ -205,7 +207,7 @@ var swalConfigs = (function() {
         cancelButtonText: 'Cancel',
         confirmButtonText: 'Start',
         footer: '<div class="text-center">' +
-                'This game is inspired by <a href="https://twitter.com/avecsuju?s=20">@avecsuju</a>\'s <a href="https://twitter.com/avecsuju/status/1365467749951049728?s=20"> ELF Jukebox </a> game on twitter. </div>'
+                'This game is inspired by <a href="https://twitter.com/avecsuju/status/1365467749951049728?s=20"> ELF Jukebox </a> game on twitter. </div>'
     }
 
     const GAME_MODAL = {
