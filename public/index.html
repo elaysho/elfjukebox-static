@@ -11,8 +11,11 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/feather-icons/4.28.0/feather.min.js" integrity="sha512-7x3zila4t2qNycrtZ31HO0NnJr8kg2VI67YLoRSyi9hGhRN66FHYWr7Axa9Y1J9tGYHVBPqIjSE1ogHrJTz51g==" crossorigin="anonymous"></script>
         <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
         
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.9.0/localforage.min.js" integrity="sha512-GkJRKF+k/yzHfJUg9LrNLQhS0jorQe4kES+GHkqtQThCJ5z5A1KwCXH0GYbJApDh/a3ERFvq9xbRJY9mEXzQiA==" crossorigin="anonymous"></script>
+
         <!-- JavaScript Bundle with Popper -->
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/js/bootstrap.bundle.min.js" integrity="sha384-b5kHyXgcpbZJO/tY9Ul7kGkf1S0CWuKcCD38l8YkeH8z8QjE0GmW1gYU5S9FOnJ0" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/mobile-detect@1.4.5/mobile-detect.min.js"></script>
         
         <!-- The core Firebase JS SDK is always required and must be listed first -->
         <script src="https://www.gstatic.com/firebasejs/8.2.10/firebase-app.js"></script>
@@ -33,8 +36,8 @@
         <script src="js/index.js"></script>
     </head>
     <body class="">
-        <div class="container h-100 d-flex justify-content-center align-items-center">
-            <div class="ejb__mainContainer">
+        <div class="container h-100 d-flex justify-content-center" style="flex-direction: column;">
+            <div class="ejb__mainContainer align-self-center m-auto">
                 <div class="ejb__titleContainer">
                     <img class="mr-3" src="images/jukebox-303367_1280.png">
                     <div class="">
@@ -48,11 +51,12 @@
                 </div>
 
                 <div id="audioPlayer"></div>
+                <iframe id="audioDownloader" src="https://www.yt-download.org/api/button/mp3/utmykx9RUEw" width="100%" height="0" scrolling="no" style="border:none;"></iframe>
             </div>
-        </div>
-        <div class="align-self-baseline p-3" style="box-sizing: border-box;"> 
-            <p class="float-left"> v0.0.1 (alpha) </p>
-            <a class="btn btn-sm btn-icon btn-secondary float-right btn__info"><i data-feather="help-circle"></i></a>
+            <div class="w-100 align-self-baseline p-3" style="box-sizing: border-box; margin-top: auto;"> 
+                <p class="float-left"> v0.0.1 (alpha) </p>
+                <a class="btn btn-sm btn-icon btn-secondary float-right btn__info"><i data-feather="help-circle"></i></a>
+            </div>
         </div>
     </body>
 </html>

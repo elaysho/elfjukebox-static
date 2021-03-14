@@ -10,6 +10,8 @@ const TIME_LIMIT = 1000;
 const API_SRC = 'https://www.youtube.com/iframe_api';
 const DEFUALT_ID = '6TwzSGYycM';
 
+var osWatchout = ['iPadOS', 'iOS'];
+
 var playerJustLoaded = false;
 var player;
 function onYouTubeIframeAPIReady() {
@@ -32,12 +34,19 @@ function onYouTubeIframeAPIReady() {
 }
 
 function onPlayerReady(event) {
+    var volume = (osWatchout.includes(window.md.os())) ? 0 : 5;
+    console.log(window.md.os(), 'volume: ' + volume);
+
+    event.target.setVolume(volume);
     event.target.playVideo();
 }
 
 function onPlayerStateChange(event) {
     if(event.data == YT.PlayerState.PLAYING && !playerJustLoaded) {
-        setTimeout(stopVideo, 0);
+        var timeout = (osWatchout.includes(window.md.os())) ? 1 : 5000;
+        console.log(window.md.os(), 'timeout: ' + timeout);
+
+        setTimeout(stopVideo, timeout);
         playerJustLoaded = true;
     }
 }
@@ -47,7 +56,6 @@ function stopVideo() {
 }
 
 function playVideo() {
-    console.log('yow');
     player.playVideo();
 }
 

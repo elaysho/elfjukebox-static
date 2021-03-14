@@ -177,69 +177,28 @@ var index = (function() {
     }
 
     var playGame = function() {
-        var gameModalQueues = [];
-        gameModalQueues[0] = swalConfigs.ENTER_GAME_CODE;
-        gameModalQueues[1] = swalConfigs.GAME_INSTRUCTION;
+        (async() => {
+            var gameModalQueues = [];
+            gameModalQueues = await loadGameModals();
 
-        gameModalQueues[0].didOpen = () => {
-            var parameters = new URLSearchParams(location.search);
-            if(parameters.has('code')) $('.input__gameCodePlay').val(parameters.get('code'));
-        };
-
-        gameModalQueues[0].preConfirm = () => {
-            var inputs = $('.swal2-html-container :input');
-            if(inputs.length > 0) {
-                var validated = utils.checkInputs(inputs);
-                if(validated == false) return false;
-            }
-
-            var code = $(inputs[0]).val();
-            loadGame(code);
-
-            try {
-                var game = JSON.parse(localStorage.getItem('game'));
-                gameData = game;
-                localStorage.setItem('songs', JSON.stringify(game.songs));
-
-                $.each(game.songs, function(i, song) {
-                    var songModal = swalConfigs.GAME_MODAL;
-                    songModal.preDeny = () => {
-                        Swal.clickConfirm();
-                    };
-
-                    songModal.didOpen = () => {
-                        feather.replace();
-                        playSong();
-
-                        try {
-                        } catch(e) { console.log(e) }
-                    };
-
-                    songModal.preConfirm = () => {
-                        var inputs = $('.swal2-html-container :input');
-                        var values = utils.getValues(inputs);
-                        return new Promise(function (resolve) {
-                            resolve(values)
-                        })
-                    }
-
-                    gameModalQueues.push(songModal);
-                });
-
-                gameModalQueues[1].willOpen = () => {
-                    var gameData = JSON.parse(localStorage.getItem('game'));
-        
-                    $('.span__groupName').text(gameData.group_name ?? 'Super Junior');
-                    $('.div__gameInfo').append('<b> Hosted By: </b> ' + ((gameData.host_details.nickname == '') ? 'N/A' : gameData.host_details.nickname));
-                    $('.div__gameInfo').append('<br>');
-                    $('.div__gameInfo').append('<b> Songs: </b> ' + gameData.songs.length);
-                };
-            } catch(e) { console.log(e) }
-        };
-
-        Swal.mixin(swalConfigs.PLAY_GAME_SETTINGS)
+            Swal.mixin(swalConfigs.PLAY_GAME_SETTINGS)
             .queue(gameModalQueues)
             .then((result) => {
+                if(typeof result.dismiss != 'undefined') {
+                    if(result.dismiss == 'close') {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Aborting...',
+                            text: 'Sorry to see you go in the middle of the game. Hope you had fun!',
+                            showConfirmButton: false,
+                            showCancelButton: false,
+                            timer: 2000,
+                            timerProgressBar: true
+                        });
+                        return true;
+                    }
+                }
+
                 if(result.value) {
                     const answers = result.value;
                     var gameResultHtml = htmlTemplates.GAME_RESULT;
@@ -260,10 +219,12 @@ var index = (function() {
                             $.each(game.songs, function(i, song) {
                                 var correctAnswer = '<div class="d-flex justify-content-between align-items-center w-75 mx-auto">' +
                                                         '<p>' + atob(song.answer) + '</p>' +
-                                                        '<a href="' + song.link + '" class="" target="_blank"> Play on Youtube </a>' +
+                                                        '<a href="' + song.link + '" class="" target="_blank"><icon data-feather="youtube"></i></a>' +
                                                     '</div>';
                                 $('.div__correctAnswers').append(correctAnswer);
                             });
+
+                            feather.replace();
                         }
                     }).then((result) => {
                         localStorage.removeItem('game');
@@ -272,6 +233,36 @@ var index = (function() {
                     });
                 }
             });
+        })();
+    }
+
+    var loadGameModals = async function() {
+        var gameModalQueues = [];
+        gameModalQueues[0] = swalConfigs.ENTER_GAME_CODE;
+        gameModalQueues[0].didOpen = () => {
+            var parameters = new URLSearchParams(location.search);
+            if(parameters.has('code')) $('.input__gameCodePlay').val(parameters.get('code'));
+        };
+
+        gameModalQueues[0].preConfirm = () => {
+            var inputs = $('.swal2-html-container :input');
+            if(inputs.length > 0) {
+                var validated = utils.checkInputs(inputs);
+                if(validated == false) return false;
+            }
+
+            var code = $(inputs[0]).val();
+            loadGame(code);
+
+            gameModalQueues = createSongModalsQueues(gameModalQueues);
+            // if(window.md.mobile() != null) {
+            //     gameModalQueues = createSongModalsQueues(gameModalQueues);
+            // } else {
+            //     console.log('for mobile...');
+            // }
+        };
+
+        return gameModalQueues;
     }
 
     var loadGame = function(code) {
@@ -283,6 +274,68 @@ var index = (function() {
             }).catch((error) => {
 
             });
+    }
+
+    var createSongModalsQueues = function(gameModalQueues = []) {
+        try {
+            var game = JSON.parse(localStorage.getItem('game'));
+            gameData = game;
+
+            localStorage.setItem('songs', JSON.stringify(game.songs));
+            $.each(game.songs, function(i, song) {
+                var songModal = swalConfigs.GAME_MODAL;
+                songModal.preDeny = () => {
+                    Swal.clickConfirm();
+                };
+
+                songModal.didOpen = () => {
+                    stopVideo();
+
+                    feather.replace();
+                    playSong();
+
+                    try {
+                    } catch(e) { console.log(e); }
+                };
+
+                songModal.preConfirm = () => {
+                    var inputs = $('.swal2-html-container :input');
+                    var values = utils.getValues(inputs);
+                    return new Promise(function (resolve) {
+                        resolve(values)
+                    });
+                }
+
+                gameModalQueues.push(songModal);
+            });
+
+            gameModalQueues[1] = loadInsturctionModal();
+            return gameModalQueues;
+        } catch(e) { console.log(e) }
+    }
+
+    var loadInsturctionModal = function() {
+        try {
+            instructionModal = swalConfigs.GAME_INSTRUCTION;
+            instructionModal.willOpen = () => {
+                var gameData = JSON.parse(localStorage.getItem('game'));
+                $('.span__groupName').text(gameData.group_name ?? 'Super Junior');
+                $('.div__gameInfo').append('<h4> Game Info: </h4> ');
+                $('.div__gameInfo').append('<b> Code: </b> ' + gameData.code + '</br>');
+                $('.div__gameInfo').append('<b> Hosted By: </b> ' + ((gameData.host_details.nickname == '') ? 'N/A' : gameData.host_details.nickname));
+                $('.div__gameInfo').append('<br>');
+                $('.div__gameInfo').append('<b> Songs: </b> ' + gameData.songs.length);
+            };
+
+            instructionModal.didOpen = () => {
+                player.playVideo();
+            };
+
+            return instructionModal;
+        } catch(e) {
+            console.log(e);
+            return loadInsturctionModal();
+        }
     }
 
     var playSong = function() {
@@ -299,7 +352,6 @@ var index = (function() {
                 startSeconds: song.startSeconds,
                 endSeconds: song.endSeconds
             });
-            player.setVolume(5);
         } catch(e) { console.log(e); }
     }
 
@@ -333,9 +385,20 @@ var index = (function() {
     }
 
     var onGameLoad = function() {
+        var md = new MobileDetect(window.navigator.userAgent);
+        window.md = md;
+
         var parameters = new URLSearchParams(location.search);
         if(parameters.has('code')) {
             ui.btn__playGame.click();
+        }
+
+        if(parameters.has('debug')) {
+            if(parameters.get('debug') == 'true') {
+                var headTag = document.getElementsByTagName('title')[0];
+                var mobileConsole = '<script src="js/vendor/hnl.mobileConsole.js"></script>';
+                $(mobileConsole).insertBefore(headTag);
+            }
         }
     }
 
