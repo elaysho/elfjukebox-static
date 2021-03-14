@@ -215,7 +215,7 @@ var swalConfigs = (function() {
         showCancelButton: false,
         allowOutsideClick: () => false,
         footer: '<p> <b>Note:</b> If song doesn\'t play, click the repeat button (with 2 second interval) until it does. ' +
-                ' <b>Don\'t spam though, please!</p> </p>'
+                ' <b>Don\'t spam though, please!</b> </br></br> Also currently not working on mobile too. Sorry :( </p>'
     }
 
     return {

@@ -225,15 +225,16 @@ var index = (function() {
 
                     gameModalQueues.push(songModal);
                 });
-            } catch(e) { console.log(e) }
-        };
 
-        var gameData = JSON.parse(localStorage.getItem('game'));
-        gameModalQueues[1].willOpen = () => {
-            $('.span__groupName').text(gameData.group_name);
-            $('.div__gameInfo').append('<b> Hosted By: </b> ' + ((gameData.host_details.nickname == '') ? 'N/A' : gameData.host_details.nickname));
-            $('.div__gameInfo').append('<br>');
-            $('.div__gameInfo').append('<b> Songs: </b> ' + gameData.songs.length);
+                gameModalQueues[1].willOpen = () => {
+                    var gameData = JSON.parse(localStorage.getItem('game'));
+        
+                    $('.span__groupName').text(gameData.group_name ?? 'Super Junior');
+                    $('.div__gameInfo').append('<b> Hosted By: </b> ' + ((gameData.host_details.nickname == '') ? 'N/A' : gameData.host_details.nickname));
+                    $('.div__gameInfo').append('<br>');
+                    $('.div__gameInfo').append('<b> Songs: </b> ' + gameData.songs.length);
+                };
+            } catch(e) { console.log(e) }
         };
 
         Swal.mixin(swalConfigs.PLAY_GAME_SETTINGS)
@@ -298,6 +299,7 @@ var index = (function() {
                 startSeconds: song.startSeconds,
                 endSeconds: song.endSeconds
             });
+            player.setVolume(5);
         } catch(e) { console.log(e); }
     }
 
@@ -309,6 +311,8 @@ var index = (function() {
                 startSeconds: song.startSeconds,
                 endSeconds: song.endSeconds
             });
+
+            player.setVolume(100);
         } catch(e) { console.log(e); }
     }
 
