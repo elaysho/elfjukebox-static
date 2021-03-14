@@ -49,6 +49,9 @@ function onPlayerStateChange(event) {
         setTimeout(stopVideo, timeout);
         playerJustLoaded = true;
     }
+
+    console.log(event);
+    console.log('playing: ' + (event.data == YT.PlayerState.PLAYING));
 }
 
 function stopVideo() {

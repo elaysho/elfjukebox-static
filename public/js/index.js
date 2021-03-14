@@ -395,9 +395,14 @@ var index = (function() {
 
         if(parameters.has('debug')) {
             if(parameters.get('debug') == 'true') {
-                var headTag = document.getElementsByTagName('title')[0];
-                var mobileConsole = '<script src="js/vendor/hnl.mobileConsole.js"></script>';
-                $(mobileConsole).insertBefore(headTag);
+                // var headTag = document.getElementsByTagName('title')[0];
+                // var mobileConsole = '<script src="js/vendor/hnl.mobileConsole.js"></script>';
+                // var mobileConsoleTag = '<script src="https://cdnjs.cloudflare.com/ajax/libs/vConsole/3.4.0/vconsole.min.js"></script>';
+                // $(mobileConsoleTag).insertBefore(headTag);
+
+                var vconsole = new VConsole();
+                console.log('vconsole initialized.') 
+                console.log('mobile debug:');
             }
         }
     }
