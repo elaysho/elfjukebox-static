@@ -177,7 +177,6 @@ var index = (function() {
     }
 
     var playGame = function() {
-        var gameData;
         var gameModalQueues = [];
         gameModalQueues[0] = swalConfigs.ENTER_GAME_CODE;
         gameModalQueues[1] = swalConfigs.GAME_INSTRUCTION;
@@ -229,6 +228,7 @@ var index = (function() {
             } catch(e) { console.log(e) }
         };
 
+        var gameData = JSON.parse(localStorage.getItem('game'));
         gameModalQueues[1].willOpen = () => {
             $('.span__groupName').text(gameData.group_name);
             $('.div__gameInfo').append('<b> Hosted By: </b> ' + ((gameData.host_details.nickname == '') ? 'N/A' : gameData.host_details.nickname));
