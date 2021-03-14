@@ -1,12 +1,13 @@
 <html>
     <head> 
-        <title>Elf Jukebox</title>
+        <title>ELF Jukebox</title>
 
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
         <link rel="stylesheet" href="css/style.css">
         <link rel="preconnect" href="https://fonts.gstatic.com">
-        <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Fredoka+One&family=Staatliches&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Staatliches&display=swap" rel="stylesheet">
         
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/feather-icons/4.28.0/feather.min.js" integrity="sha512-7x3zila4t2qNycrtZ31HO0NnJr8kg2VI67YLoRSyi9hGhRN66FHYWr7Axa9Y1J9tGYHVBPqIjSE1ogHrJTz51g==" crossorigin="anonymous"></script>
         <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
         
         <!-- JavaScript Bundle with Popper -->
@@ -23,7 +24,12 @@
         <script src="js/firebaseConfig.js"></script>
 
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10.15.5/dist/sweetalert2.all.min.js" integrity="sha256-92U7H+uBjYAJfmb+iNPi7DPoj795ZCTY4ZYmplsn/fQ=" crossorigin="anonymous"></script>
-        <script src="https://www.youtube.com/iframe_api"></script>
+        <script src="https://unpkg.com/feather-icons"></script>
+
+        <script src="js/utils.js"></script>
+        <script src="js/constants.js"></script>
+        <script src="js/audioPlayer.js"></script>
+        <script src="js/index.js"></script>
     </head>
     <body class="">
         <div class="container h-100 d-flex justify-content-center align-items-center">
@@ -40,14 +46,12 @@
                     <button type="button" class="btn btn-secondary btn-block btn__playGame"> Play </button>
                 </div>
 
-                <div class="youtube-audio" data-video="VIDEO_ID"
-                        data-autoplay="1"
-                        data-loop="1"
-                        id="kEo14-UOM80">
-                </div>
+                <div id="audioPlayer"></div>
             </div>
         </div>
-
-        <script src="js/index.js"></script>
+        <div class="align-self-baseline p-3" style="box-sizing: border-box;"> 
+            <p class="float-left"> v0.0.1 (alpha) </p>
+            <a class="btn btn-sm btn-icon btn-secondary float-right btn__info"><i data-feather="help-circle"></i></a>
+        </div>
     </body>
 </html>

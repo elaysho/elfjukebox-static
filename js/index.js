@@ -1,68 +1,357 @@
-var elfjukebox = (function() {
+var index = (function() {
+    const MAX_SONGS_PER_GAME = 20;
+    const MIN_SONGS_PER_GAME = 1;
+
+    const HOST_DETAILS_KEY   = 0;
+    const SONGS_KEY          = 1;
+
+    const YOUTUBE_ID_RE      = /^.*(youtu.be\/|youtube(-nocookie)?.com\/(v\/|.*u\/\w\/|embed\/|.*v=))([\w-]{11}).*/;
+
     var ui;
 
     var bindUI = function() {
         ui = {};
 
-        ui.btn__hostGame = $('.btn__hostGame');
+        ui.btn__hostGame    = $('.btn__hostGame');
+        ui.btn__playGame    = $('.btn__playGame');
+        ui.btn__addSongs    = $('.btn__addSongs');
+        ui.btn__deleteSongs = $('.btn__deleteSongs');
+        ui.btn__repeatSong  = $('.btn__repeatSong');
+        ui.btn__info        = $('.btn__info');
+
+        ui.input__gameCode  = $('.input__gameCode');
+        ui.input__gameUrl   = $('.input__gameUrl');
     }
 
     var bindEvents = function() {
         ui.btn__hostGame.on('click', hostGame);
+        ui.btn__playGame.on('click', playGame);
+        ui.btn__info.on('click', showInfo);
+        
+        $(document).on('click', '.btn__addSongs', addASong);
+        $(document).on('click', '.btn__deleteSongs', deleteASong);
+        $(document).on('click', '.input__gameCode', utils.copyToClipBoard);
+        $(document).on('click', '.input__gameUrl', utils.copyToClipBoard);
+        $(document).on('click', '.btn__repeatSong', repeatSong);
+        
+        $(document).on('keyup change', '.input__error', function() {
+            utils.checkInputs([$(this)]);
+        });
+
+        $(document).on('keyup change', '.group__error', function() {
+            utils.checkInputs([$(this)]);
+        });
     }
 
     var hostGame = function() {
-        var hostDetailsHtml = '<p> Please enter a nickname and password so you can still edit your game later. </p>' +
-                                '<input type="text" name="nickname" class="swal2-input" placeholder="Nickname">' +
-                                '<input type="password" name="password" class="swal2-input" placeholder="Password">';
+        Swal.mixin(swalConfigs.HOST_GAME_SETTINGS)
+            .queue(swalConfigs.HOST_GAMES_MODAL_QUEUES)
+            .then((result) => {
+                if(result.value) {
+                    const answers = result.value;
 
-        var addSongHtml = '<p> You can add a song by pasting a youtube link. </p>';
+                    var loadingSwal = swalConfigs.CREATE_GAME_LOADING;
+                    loadingSwal.didOpen = () => {
+                        Swal.showLoading();
+                        setTimeout(Swal.clickConfirm, 2000);
+                    };
 
-        Swal.mixin({
-            confirmButtonText: 'Next &rarr;',
-            showCancelButton: true,
-            progressSteps: ['1', '2', '3'],
-            reverseButtons: true,
-          }).queue([
-            {
-              title: 'Host a Game',
-              html: hostDetailsHtml,
-              allowOutsideClick: () => !Swal.isLoading(),
-              preConfirm: () => {
-                return new Promise(function (resolve) {
-                    resolve([
-                      $('[name=nickname]').val(),
-                      $('[name=password]').val()
-                    ])
-                })
-              },
-              didOpen: () => {
-                $('[name=nickname]').focus();
-              }
-            },
-            {
-                title: 'Add Songs',
-                html: addSongHtml
-            },
-            'Question 3'
-          ]).then((result) => {
-            if (result.value) {
-              const answers = JSON.stringify(result.value)
-              Swal.fire({
-                title: 'All done!',
-                html: `
-                  Your answers:
-                  <pre><code>${answers}</code></pre>
-                `,
-                confirmButtonText: 'Lovely!'
-              })
+                    loadingSwal.preConfirm = () => {
+                        const game = generateGameData(answers);
+                        saveGame(game);
+                        
+                        try {
+                            error = localStorage.getItem(gameSettings.ERROR);
+                            error = JSON.parse(error);
+
+                            if(error != null) onError(error);
+                        } catch(e) {}
+                    }
+
+                    Swal.queue([loadingSwal]);
+                }
+
+                return false;
+          });
+    }
+
+    var addASong = function() {
+        var songs = $(this).parent().find('.song__group');
+
+        if(songs.length < MAX_SONGS_PER_GAME) {
+            $(htmlTemplates.ADD_SONG_GROUP).insertBefore($(this));
+        }
+
+        feather.replace();
+    }
+
+    var deleteASong = function() {
+        var songs = $('.swal2-html-container').find('.song__group');
+        console.log(songs.length, songs.length > MIN_SONGS_PER_GAME);
+        if(songs.length > MIN_SONGS_PER_GAME) {
+            $($(this).parent()).remove();
+        }
+    }
+
+    var generateGameData = function(values) {
+        var gameData = {};
+
+        gameData.code  = generateGameCode();
+        gameData.host_details = {};
+
+        $.each(values[HOST_DETAILS_KEY], function(i, val) {
+            gameData.host_details[val.name] = val.value;
+        });
+
+        gameData.songs = [];
+        $.each(values[SONGS_KEY], function(i, val) {
+            if((i % 4) > 0) return;
+            if(utils.getYoutubeUrlId(val.value, YOUTUBE_ID_RE) == null) return;
+            
+            var song = {
+                answer: btoa(values[SONGS_KEY][i + 1]['value']),
+                id: utils.getYoutubeUrlId(val.value, YOUTUBE_ID_RE),
+                link: val.value,
+                startSeconds: parseInt(values[SONGS_KEY][i + 2]['value']),
+                endSeconds: parseInt(values[SONGS_KEY][i + 3]['value'])
+            };
+
+            gameData.songs.push(song);
+        });
+
+        gameData.group_name = 'Super Junior';
+        return gameData;
+    }
+
+    var generateGameCode = function() {
+        var code = utils.randomString(gameSettings.GAME_CODE_LENGTH, gameSettings.GAME_CODE_MASK);
+        return code;
+    }
+
+    var saveGame = function(game) {
+        db.collection(gameSettings.DB_KEYS[0])
+            .add(game).then((docRef) => {
+                Swal.hideLoading();
+
+                var gameCreatedSwal = swalConfigs.GAME_CREATED;
+                gameCreatedSwal.didOpen = () => {
+                    $('.input__gameCode').val(game.code);
+
+                    var url = utils.addParametersToUrl(location.href, location.search, 
+                        [{key: 'code', value: game.code}]);
+                    $('.input__gameUrl').val(url);
+                };
+
+                Swal.fire(gameCreatedSwal)
+                    .then((result) => {
+                          console.log(result);
+                          if(result.isDismissed) {
+                              if(result.reason == 'close') return true;
+                          }
+                          return false;
+                    });
+            }).catch((error) => {
+                var gameCreatedErrorSwal = swalConfigs.GAME_CREATE_ERROR;
+                gameCreatedErrorSwal.didOpen = () => {
+                    utils.saveToLocalStorage(gameSettings.UNSAVED_GAMES, game);
+                    utils.saveToLocalStorage(gameSettings.ERROR, {error: error, code: game.code});
+                };
+
+                Swal.fire(gameCreatedErrorSwal)
+                    .then((result) => {});
+            });
+        
+        return null;
+    }
+
+    var onError = function(error) {
+        db.collection(gameSettings.DB_KEYS[4]).add({
+            browser: null,
+            error: error.error,
+            game_code: error.code,
+        }).then((docRef) => {}).catch((error) => {});
+
+        try {
+            localStorage.removeItem(gameSettings.ERROR);
+        } catch(e) {}
+    }
+
+    var playGame = function() {
+        var gameData;
+        var gameModalQueues = [];
+        gameModalQueues[0] = swalConfigs.ENTER_GAME_CODE;
+        gameModalQueues[1] = swalConfigs.GAME_INSTRUCTION;
+
+        gameModalQueues[0].didOpen = () => {
+            var parameters = new URLSearchParams(location.search);
+            if(parameters.has('code')) $('.input__gameCodePlay').val(parameters.get('code'));
+        };
+
+        gameModalQueues[0].preConfirm = () => {
+            var inputs = $('.swal2-html-container :input');
+            if(inputs.length > 0) {
+                var validated = utils.checkInputs(inputs);
+                if(validated == false) return false;
             }
-          })
+
+            var code = $(inputs[0]).val();
+            loadGame(code);
+
+            try {
+                var game = JSON.parse(localStorage.getItem('game'));
+                gameData = game;
+                localStorage.setItem('songs', JSON.stringify(game.songs));
+
+                $.each(game.songs, function(i, song) {
+                    var songModal = swalConfigs.GAME_MODAL;
+                    songModal.preDeny = () => {
+                        Swal.clickConfirm();
+                    };
+
+                    songModal.didOpen = () => {
+                        feather.replace();
+                        playSong();
+
+                        try {
+                        } catch(e) { console.log(e) }
+                    };
+
+                    songModal.preConfirm = () => {
+                        var inputs = $('.swal2-html-container :input');
+                        var values = utils.getValues(inputs);
+                        return new Promise(function (resolve) {
+                            resolve(values)
+                        })
+                    }
+
+                    gameModalQueues.push(songModal);
+                });
+            } catch(e) { console.log(e) }
+        };
+
+        gameModalQueues[1].willOpen = () => {
+            $('.span__groupName').text(gameData.group_name);
+            $('.div__gameInfo').append('<b> Hosted By: </b> ' + ((gameData.host_details.nickname == '') ? 'N/A' : gameData.host_details.nickname));
+            $('.div__gameInfo').append('<br>');
+            $('.div__gameInfo').append('<b> Songs: </b> ' + gameData.songs.length);
+        };
+
+        Swal.mixin(swalConfigs.PLAY_GAME_SETTINGS)
+            .queue(gameModalQueues)
+            .then((result) => {
+                if(result.value) {
+                    const answers = result.value;
+                    var gameResultHtml = htmlTemplates.GAME_RESULT;
+
+                    var game = JSON.parse(localStorage.getItem('game'));
+                    var gameResult = checkAnswers(game, answers);
+
+                    Swal.fire({
+                        icon: (gameResult.correct == game.songs.length) ? 'success' : 'error',
+                        title: (gameResult.correct == game.songs.length) ? 
+                                  'Perfect!' : ('You got ' + gameResult.correct + ' out of ' + game.songs.length + ' songs!'),
+                        html: gameResultHtml,
+                        showConfirmButton: false,
+                        showCloseButton: true,
+                        showCancelButton: true,
+                        cancelButtonText: 'Close',
+                        didOpen: () => {
+                            $.each(game.songs, function(i, song) {
+                                var correctAnswer = '<div class="d-flex justify-content-between align-items-center w-75 mx-auto">' +
+                                                        '<p>' + atob(song.answer) + '</p>' +
+                                                        '<a href="' + song.link + '" class="" target="_blank"> Play on Youtube </a>' +
+                                                    '</div>';
+                                $('.div__correctAnswers').append(correctAnswer);
+                            });
+                        }
+                    }).then((result) => {
+                        localStorage.removeItem('game');
+                        localStorage.removeItem('current_song');
+                        localStorage.removeItem('songs');
+                    });
+                }
+            });
+    }
+
+    var loadGame = function(code) {
+        db.collection(gameSettings.DB_KEYS[0])
+            .where(gameSettings.GAME_KEYS[0], "==", code).get().then((querySnapshot) => {
+                querySnapshot.forEach((doc) => {
+                  utils.saveToLocalStorage('game', doc.data());
+              });
+            }).catch((error) => {
+
+            });
+    }
+
+    var playSong = function() {
+        var songs, song;
+        try {
+            songs = JSON.parse(localStorage.getItem('songs'));
+            song  = songs.shift();
+
+            localStorage.setItem('current_song', JSON.stringify(song));
+            localStorage.setItem('songs', JSON.stringify(songs));
+
+            player.loadVideoById({
+                videoId: song.id,
+                startSeconds: song.startSeconds,
+                endSeconds: song.endSeconds
+            });
+        } catch(e) { console.log(e); }
+    }
+
+    var repeatSong = function() {
+        try {
+            song = JSON.parse(localStorage.getItem('current_song'));
+            player.loadVideoById({
+                videoId: song.id,
+                startSeconds: song.startSeconds,
+                endSeconds: song.endSeconds
+            });
+        } catch(e) { console.log(e); }
+    }
+
+    var checkAnswers = function(game, answers) {
+        var results = [];
+        results['correct'] = 0;
+        results['songs']   = [];
+
+        $.each(answers, function(i, answer) {
+            if(typeof answer == 'boolean') return;
+
+            var correctAnswer = game.songs[i - 2].answer;
+            results['songs'][i] = (atob(correctAnswer).toLowerCase() == answer[0].value.toLowerCase());
+            if(results['songs'][i]) results['correct']++;
+        });
+
+        return results;
+    }
+
+    var onGameLoad = function() {
+        var parameters = new URLSearchParams(location.search);
+        if(parameters.has('code')) {
+            ui.btn__playGame.click();
+        }
+    }
+
+    var showInfo = function() {
+        Swal.fire({
+            icon: 'info',
+            title: 'Hellooo~',
+            html: htmlTemplates.WEBGAME_INFO,
+            showCloseButton: true,
+            showConfirmButton: false,
+            footer: htmlTemplates.WEBGAME_FOOTER
+        });
     }
 
     var init = function() {
+        feather.replace();
+
         bindUI();
         bindEvents();
+        onGameLoad();
     }
 
     return {
@@ -71,42 +360,5 @@ var elfjukebox = (function() {
 })();
 
 $(document).ready(function() {
-    elfjukebox.init();
+    index.init();
 })
-
-var player;
-function onYouTubeIframeAPIReady() {
-    var youtubePlayer = $('.youtube-audio');
-    player = new YT.Player('player', {
-        height: '0',
-        width: '0',
-        videoId: youtubePlayer.data('id'),
-        playerVars: {
-            autoplay: youtubePlayer.data('autoplay'),
-            loop: youtubePlayer.data('loop')
-        },
-        events: {
-            'onReady': onPlayerReady,
-            'onStateChange': onPlayerStateChange
-          }
-    });
-}
-
-// 4. The API will call this function when the video player is ready.
-function onPlayerReady(event) {
-    event.target.playVideo();
-  }
-
-  // 5. The API calls this function when the player's state changes.
-  //    The function indicates that when playing a video (state=1),
-  //    the player should play for six seconds and then stop.
-  var done = false;
-  function onPlayerStateChange(event) {
-    if (event.data == YT.PlayerState.PLAYING && !done) {
-      setTimeout(stopVideo, 6000);
-      done = true;
-    }
-  }
-  function stopVideo() {
-    player.stopVideo();
-  }
