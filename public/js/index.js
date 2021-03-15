@@ -92,7 +92,6 @@ var index = (function() {
 
     var deleteASong = function() {
         var songs = $('.swal2-html-container').find('.song__group');
-        console.log(songs.length, songs.length > MIN_SONGS_PER_GAME);
         if(songs.length > MIN_SONGS_PER_GAME) {
             $($(this).parent()).remove();
         }
@@ -149,7 +148,6 @@ var index = (function() {
 
                 Swal.fire(gameCreatedSwal)
                     .then((result) => {
-                          console.log(result);
                           if(result.isDismissed) {
                               if(result.reason == 'close') return true;
                           }
@@ -178,63 +176,94 @@ var index = (function() {
 
         try {
             localStorage.removeItem(gameSettings.ERROR);
-        } catch(e) {}
+        } catch(e) { console.log('Accessing error saved on localStorage', e, e.message); }
     }
 
     var playGame = function() {
         (async() => {
-            var gameModalQueues = [];
-            gameModalQueues = await loadGameModals();
+            var gameModalQueues = await loadGameModals();
+            var firstModal = gameModalQueues.shift();
 
-            Swal.mixin(swalConfigs.PLAY_GAME_SETTINGS)
-            .queue(gameModalQueues)
-            .then((result) => {
-                if(typeof result.dismiss != 'undefined') {
-                    if(result.dismiss == 'close') {
-                        Swal.fire({
-                            icon: 'warning',
-                            title: 'Aborting...',
-                            text: 'Sorry to see you go in the middle of the game. Hope you had fun!',
-                            showConfirmButton: false,
-                            showCancelButton: false,
-                            timer: 2000,
-                            timerProgressBar: true
-                        });
-                        return true;
-                    }
+            Swal.fire(firstModal).then((result) => {
+                if(result.isDismissed) {
+                    return true;
                 }
 
-                if(result.value) {
-                    const answers = result.value;
-                    var gameResultHtml = htmlTemplates.GAME_RESULT;
+                if(result.value != null) {
+                    var game = result.value;
+                    utils.saveToLocalStorage('game', game);
 
-                    var game = JSON.parse(localStorage.getItem('game'));
-                    var gameResult = checkAnswers(game, answers);
+                    (async() => {
+                        gameModalQueues = await createSongModalsQueues(gameModalQueues);
+                        Swal.mixin(swalConfigs.PLAY_GAME_SETTINGS)
+                            .queue(gameModalQueues)
+                            .then((result) => {
+                                if(typeof result.dismiss != 'undefined') {
+                                    if(result.dismiss == 'close') {
+                                        Swal.fire({
+                                            icon: 'warning',
+                                            title: 'Aborting...',
+                                            text: 'Sorry to see you go in the middle of the game. Hope you had fun!',
+                                            showConfirmButton: false,
+                                            showCancelButton: false,
+                                            timer: 2000,
+                                            timerProgressBar: true
+                                        });
 
+                                        clearLocalStorage(window.clearKeys);
+                                        return true;
+                                    }
+                                }
+
+                                if(result.value) {
+                                    const answers = result.value;
+                                    var gameResultHtml = htmlTemplates.GAME_RESULT;
+                                    var gameResult = checkAnswers(game, answers);
+
+                                    Swal.fire({
+                                        icon: (gameResult.correct == game.songs.length) ? 'success' : 'error',
+                                        title: (gameResult.correct == game.songs.length) ? 
+                                                'Perfect!' : ('You got ' + gameResult.correct + ' out of ' + game.songs.length + ' songs!'),
+                                        html: gameResultHtml,
+                                        showConfirmButton: false,
+                                        showCloseButton: true,
+                                        showCancelButton: true,
+                                        cancelButtonText: 'Close',
+                                        didOpen: () => {
+                                            $.each(game.songs, function(i, song) {
+                                                var correctAnswer = '<div class="d-flex justify-content-between align-items-center w-75 mx-auto">' +
+                                                                        '<p>' + atob(song.answer) + '</p>' +
+                                                                        '<a href="' + song.link + '" class="" target="_blank"><icon data-feather="youtube"></i></a>' +
+                                                                    '</div>';
+                                                $('.div__correctAnswers').append(correctAnswer);
+                                            });
+
+                                            feather.replace();
+                                        }
+                                    }).then((result) => {
+                                        localStorage.removeItem('game');
+                                        localStorage.removeItem('current_song');
+                                        localStorage.removeItem('songs');
+                                    });
+                                }
+                            });
+                    })();
+
+                        
+                } else {
                     Swal.fire({
-                        icon: (gameResult.correct == game.songs.length) ? 'success' : 'error',
-                        title: (gameResult.correct == game.songs.length) ? 
-                                  'Perfect!' : ('You got ' + gameResult.correct + ' out of ' + game.songs.length + ' songs!'),
-                        html: gameResultHtml,
-                        showConfirmButton: false,
-                        showCloseButton: true,
+                        icon: 'error',
+                        title: 'Ooops!',
+                        text: 'Sorry :( The game you\'re looking for doesn\'t exist.',
                         showCancelButton: true,
                         cancelButtonText: 'Close',
-                        didOpen: () => {
-                            $.each(game.songs, function(i, song) {
-                                var correctAnswer = '<div class="d-flex justify-content-between align-items-center w-75 mx-auto">' +
-                                                        '<p>' + atob(song.answer) + '</p>' +
-                                                        '<a href="' + song.link + '" class="" target="_blank"><icon data-feather="youtube"></i></a>' +
-                                                    '</div>';
-                                $('.div__correctAnswers').append(correctAnswer);
-                            });
-
-                            feather.replace();
-                        }
+                        showConfirmButton: true,
+                        confirmButtonText: 'Try Again',
+                        reverseButtons: true
                     }).then((result) => {
-                        localStorage.removeItem('game');
-                        localStorage.removeItem('current_song');
-                        localStorage.removeItem('songs');
+                        if(result.isConfirmed) {
+                            playGame();
+                        }
                     });
                 }
             });
@@ -243,13 +272,14 @@ var index = (function() {
 
     var loadGameModals = async function() {
         var gameModalQueues = [];
+
         gameModalQueues[0] = swalConfigs.ENTER_GAME_CODE;
         gameModalQueues[0].didOpen = () => {
             var parameters = new URLSearchParams(location.search);
             if(parameters.has('code')) $('.input__gameCodePlay').val(parameters.get('code'));
         };
 
-        gameModalQueues[0].preConfirm = () => {
+        gameModalQueues[0].preConfirm = async () => {
             var inputs = $('.swal2-html-container :input');
             if(inputs.length > 0) {
                 var validated = utils.checkInputs(inputs);
@@ -257,35 +287,13 @@ var index = (function() {
             }
 
             var code = $(inputs[0]).val();
-            loadGame(code);
+            var game = null;
 
-            gameModalQueues = createSongModalsQueues(gameModalQueues);
-        };
+            try {
+                game = await loadGame(code);
+            } catch(e) {
+                console.log('Load game from firebase error!', e);
 
-        return gameModalQueues;
-    }
-
-    var loadGame = function(code) {
-        db.collection(gameSettings.DB_KEYS[0])
-            .where(gameSettings.GAME_KEYS[0], "==", code).get().then((querySnapshot) => {
-                // if(querySnapshot == null) {
-                //     Swal.close();
-                //     Swal.fire({
-                //         icon: 'warning',
-                //         title: 'Oh no!',
-                //         text: 'Sorry :( An error has occured. Maybe the game code you entered doesn\'t ' +
-                //                 ' exist or the game had trouble reading some data. Please try again later.',
-                //         showConfirmButton: false,
-                //         showCloseButton: true,
-                //         timerProgressBar: true,
-                //         timer: 2000
-                //     });
-                // }
-
-                querySnapshot.forEach((doc) => {
-                    utils.saveToLocalStorage('game', doc.data());
-                });
-            }).catch((error) => {
                 Swal.close();
                 Swal.fire({
                     icon: 'warning',
@@ -296,10 +304,29 @@ var index = (function() {
                     timerProgressBar: true,
                     timer: 2000
                 });
+            }
+
+            return new Promise(function (resolve) {
+                resolve(game)
             });
+        };
+
+        return gameModalQueues;
     }
 
-    var createSongModalsQueues = function(gameModalQueues = []) {
+    var loadGame = async function(code) {
+        let gamesCollection = db.collection(gameSettings.DB_KEYS[0]);
+        let gameRef = await gamesCollection.where(gameSettings.GAME_KEYS[0], "==", code).get();
+
+        let gameData = null;
+        for(game of gameRef.docs) {
+            gameData = game.data();
+        }
+
+        return gameData;
+    }
+
+    var createSongModalsQueues = async function(gameModalQueues = []) {
         try {
             var game = JSON.parse(localStorage.getItem('game'));
             gameData = game;
@@ -327,9 +354,6 @@ var index = (function() {
 
                     feather.replace();
                     playSong();
-
-                    try {
-                    } catch(e) { console.log(e); }
                 };
 
                 songModal.preConfirm = () => {
@@ -353,7 +377,7 @@ var index = (function() {
                 gameModalQueues.push(songModal);
             });
 
-            gameModalQueues[1] = loadInsturctionModal();
+            gameModalQueues.unshift(loadInsturctionModal());
             return gameModalQueues;
         } catch(e) { console.log(e) }
     }
@@ -377,7 +401,7 @@ var index = (function() {
 
             return instructionModal;
         } catch(e) {
-            console.log('Loading instruction error: ' + e.message);
+            console.log('Loading instruction error.', e, e.message);
             return loadInsturctionModal();
         }
     }
@@ -396,7 +420,7 @@ var index = (function() {
                 startSeconds: song.startSeconds,
                 endSeconds: song.endSeconds
             });
-        } catch(e) { console.log(e); }
+        } catch(e) { console.log('Play song error.', e, e.message); }
     }
 
     var repeatSong = function() {
@@ -409,7 +433,7 @@ var index = (function() {
             });
 
             player.setVolume(100);
-        } catch(e) { console.log(e); }
+        } catch(e) { console.log('Repeat song error.', e, e); }
     }
 
     var checkAnswers = function(game, answers) {
@@ -420,7 +444,7 @@ var index = (function() {
         $.each(answers, function(i, answer) {
             if(typeof answer == 'boolean') return;
 
-            var correctAnswer = game.songs[i - 2].answer;
+            var correctAnswer = game.songs[i - 1].answer;
             results['songs'][i] = (atob(correctAnswer).toLowerCase() == answer[0].value.toLowerCase());
             if(results['songs'][i]) results['correct']++;
         });
@@ -449,6 +473,18 @@ var index = (function() {
                 console.log('mobile debug:');
             }
         }
+
+        var clearKeys = ['game', 'songs', 'current_song'];
+        window.clearKeys = clearKeys;
+        clearLocalStorage(clearKeys);
+    }
+
+    var clearLocalStorage = function(keys) {
+        $.each(keys, function(i, key) {
+            try {
+                localStorage.removeItem(key);
+            } catch(e) { console.log(e); }
+        });
     }
 
     var showInfo = function() {

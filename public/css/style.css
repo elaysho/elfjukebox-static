@@ -171,4 +171,6 @@ input.input__exampleLink {
     display: flex;
     align-items: center;
     justify-content: center;
+    padding: 20px;
+    box-sizing: border-box;
 }

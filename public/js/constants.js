@@ -222,6 +222,20 @@ var swalConfigs = (function() {
                 ', sorry :( Still looking for a way to fix! </p>'
     }
 
+    // if(querySnapshot == null) {
+    //     Swal.close();
+    //     Swal.fire({
+    //         icon: 'warning',
+    //         title: 'Oh no!',
+    //         text: 'Sorry :( An error has occured. Maybe the game code you entered doesn\'t ' +
+    //                 ' exist or the game had trouble reading some data. Please try again later.',
+    //         showConfirmButton: false,
+    //         showCloseButton: true,
+    //         timerProgressBar: true,
+    //         timer: 2000
+    //     });
+    // }
+
     return {
         HOST_GAME_SETTINGS,
         HOST_GAMES_MODAL_QUEUES,
