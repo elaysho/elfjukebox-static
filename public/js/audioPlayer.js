@@ -41,11 +41,11 @@ function onYouTubeIframeAPIReady() {
     });
 
     playerJustLoaded = true;
+    onBackgroundPlayerReady();
 }
 
 function onPlayerReady(event) {
-    var volume = (osWatchout.includes(window.md.os())) ? 0 : 100;
-    console.log(window.md.os(), 'volume: ' + volume);
+    var volume = 100;
 
     event.target.setVolume(volume);
     event.target.playVideo();
@@ -53,7 +53,7 @@ function onPlayerReady(event) {
 
 function onPlayerStateChange(event) {
     if(event.data == YT.PlayerState.PLAYING && !playerJustLoaded) {
-        var timeout = (osWatchout.includes(window.md.os())) ? 1 : 5000;
+        var timeout = 1;
         console.log(window.md.os(), 'timeout: ' + timeout);
 
         setTimeout(stopVideo, timeout);
@@ -70,4 +70,101 @@ function stopVideo() {
 
 function playVideo() {
     player.playVideo();
+}
+
+var backgroundPlayer;
+function onBackgroundPlayerReady() {
+    var orignalPlaylist = [
+            'dctGL_a13hk', 'RZrqrinmdks', 'eM5XiXrBu74'
+        ];
+    orignalPlaylist = utils.shuffleArray(orignalPlaylist);
+    
+    var playlistSeconds = {
+        dctGL_a13hk: [0, null],
+        RZrqrinmdks: [0, null],
+        eM5XiXrBu74: [0, null]
+    };
+
+    var playlist    = orignalPlaylist;
+    var firstVideoId = playlist.shift();
+    backgroundPlayer = new YT.Player('backgroundPlayer', {
+        videoId: firstVideoId,
+        events: {
+            'onReady': function(event) {
+                event.target.mute();
+                event.target.playVideo();
+            },
+            'onStateChange': function(event) {
+                if(event.data == YT.PlayerState.PLAYING) {}
+                if(event.data == YT.PlayerState.ENDED) {
+                    if(playlist.length == 0) playlist = orignalPlaylist;
+
+                    var videoId = playlist.shift();
+                    backgroundPlayer.cueVideoById({
+                        videoId: videoId
+                    });
+
+                    backgroundPlayer.playVideo();
+                }
+            }
+        },
+        playerVars: {
+            autoplay: 1,
+            loop: 1,
+            controls: 0,
+            enablejsapi: 1,
+            fs: 0,
+            playsinline: 1,
+            cc_load_policy: 0,
+            disablekb: 1,
+            iv_load_policy: 3
+        }
+    });
+}
+
+function adjustBackgroundPlayerSound() {
+    var unmute = $(this).attr('data-unmute');
+    console.log(unmute);
+
+    if(unmute == 'true') {
+        $(this).attr('data-unmute', 'false');
+        $(this).find('.btn__bgSoundIcon').attr('data-feather', 'volume-x');
+        $(this).attr('title', 'Mute');
+
+        backgroundPlayer.unMute();
+    } else {
+        $(this).attr('data-unmute', 'true');
+        $(this).find('.btn__bgSoundIcon').attr('data-feather', 'volume-2');
+        $(this).attr('title', 'Unmute');
+
+        backgroundPlayer.mute();
+    }
+
+    feather.replace();
+}
+
+function toggleBackgroundVideo() {
+    var bgoff = $(this).attr('data-toggle');
+    console.log(bgoff);
+
+    if(bgoff == 'false') {
+        $(this).attr('data-toggle', 'true');
+        $(this).find('.btn__bgToggleIcon').attr('data-feather', 'video');
+        $(this).attr('title', 'Turn On Background Video');
+
+        $('#backgroundPlayer').hide();
+        $('.overlay__vidBg').hide();
+        backgroundPlayer.stopVideo();
+    } else {
+        $('#backgroundPlayer').show();
+        $('.overlay__vidBg').show();
+
+        $(this).attr('data-toggle', 'false');
+        $(this).find('.btn__bgToggleIcon').attr('data-feather', 'video-off');
+        $(this).attr('title', 'Turn Off Background Video');
+
+        backgroundPlayer.playVideo();
+    }
+
+    feather.replace();
 }

@@ -18,6 +18,7 @@ var index = (function() {
         ui.btn__deleteSongs = $('.btn__deleteSongs');
         ui.btn__repeatSong  = $('.btn__repeatSong');
         ui.btn__info        = $('.btn__info');
+        ui.btn__bgSound     = $('.btn__bgSound');
 
         ui.input__gameCode  = $('.input__gameCode');
         ui.input__gameUrl   = $('.input__gameUrl');
@@ -46,6 +47,9 @@ var index = (function() {
         $(document).on('keyup change', '.group__error', function() {
             utils.checkInputs([$(this)]);
         });
+
+        $(document).on('click', '.btn__bgSound', adjustBackgroundPlayerSound);
+        $(document).on('click', '.btn__bgToggle', toggleBackgroundVideo);
     }
 
     var hostGame = function() {
@@ -173,10 +177,6 @@ var index = (function() {
             error: error.error,
             game_code: error.code,
         }).then((docRef) => {}).catch((error) => {});
-
-        try {
-            localStorage.removeItem(gameSettings.ERROR);
-        } catch(e) { console.log('Accessing error saved on localStorage', e, e.message); }
     }
 
     var playGame = function() {
@@ -185,6 +185,11 @@ var index = (function() {
             var firstModal = gameModalQueues.shift();
 
             Swal.fire(firstModal).then((result) => {
+                if(window.urlParams.has('debug')) {
+                    console.log('Entry of Game Code Result.');
+                    console.log(result);
+                }
+
                 if(result.isDismissed) {
                     return true;
                 }
@@ -194,7 +199,7 @@ var index = (function() {
                     utils.saveToLocalStorage('game', game);
 
                     (async() => {
-                        gameModalQueues = await createSongModalsQueues(gameModalQueues);
+                        gameModalQueues = await createSongModalsQueues(gameModalQueues, game);
                         Swal.mixin(swalConfigs.PLAY_GAME_SETTINGS)
                             .queue(gameModalQueues)
                             .then((result) => {
@@ -248,8 +253,6 @@ var index = (function() {
                                 }
                             });
                     })();
-
-                        
                 } else {
                     Swal.fire({
                         icon: 'error',
@@ -292,7 +295,10 @@ var index = (function() {
             try {
                 game = await loadGame(code);
             } catch(e) {
-                console.log('Load game from firebase error!', e);
+                if(window.urlParams.has('debug')) {
+                    console.log('Loading Game Data from Firestore Error');
+                    console.log(e);
+                }
 
                 Swal.close();
                 Swal.fire({
@@ -323,12 +329,16 @@ var index = (function() {
             gameData = game.data();
         }
 
+        if(window.urlParams.has('debug')) {
+            console.log('Game Data');
+            console.log(gameData);
+        }
         return gameData;
     }
 
-    var createSongModalsQueues = async function(gameModalQueues = []) {
+    var createSongModalsQueues = async function(gameModalQueues = [], game = null) {
         try {
-            var game = JSON.parse(localStorage.getItem('game'));
+            var game = game ?? JSON.parse(localStorage.getItem('game'));
             gameData = game;
 
             localStorage.setItem('songs', JSON.stringify(game.songs));
@@ -344,7 +354,7 @@ var index = (function() {
                         $('#audioPlayer').prop('width', '560');
                         $('#audioPlayer').prop('height', '340');
 
-                        var cover = '<div id="iframeCover">For iOS users, please click the play button.</div>';
+                        var cover = '<div id="iframeCover">For iOS users, please click the play button to hear a sound.</div>';
                         $(cover).prependTo('#swal2-content.swal2-html-container');
                     }
                 }
@@ -379,7 +389,12 @@ var index = (function() {
 
             gameModalQueues.unshift(loadInsturctionModal());
             return gameModalQueues;
-        } catch(e) { console.log(e) }
+        } catch(e) { 
+            if(window.urlParams.has('debug')) {
+                console.log('Create Modal Queues error.');
+                console.log(e);
+            }
+        }
     }
 
     var loadInsturctionModal = function() {
@@ -401,7 +416,10 @@ var index = (function() {
 
             return instructionModal;
         } catch(e) {
-            console.log('Loading instruction error.', e, e.message);
+                if(window.urlParams.has('debug')) {
+                    console.log('Load Instruction on Modal error.');
+                    console.log(e);
+                }
             return loadInsturctionModal();
         }
     }
@@ -420,20 +438,38 @@ var index = (function() {
                 startSeconds: song.startSeconds,
                 endSeconds: song.endSeconds
             });
-        } catch(e) { console.log('Play song error.', e, e.message); }
+        } catch(e) { 
+            if(window.urlParams.has('debug')) {
+                console.log('Play Song error.');
+                console.log(e);
+            }
+        }
     }
 
     var repeatSong = function() {
         try {
+            $(this).prop('disabled', true);
+            $('.btn__repeatSong').attr('style', "background-color: darkgray");
+
             song = JSON.parse(localStorage.getItem('current_song'));
+
+            player.setVolume(100);
             player.loadVideoById({
                 videoId: song.id,
                 startSeconds: song.startSeconds,
                 endSeconds: song.endSeconds
             });
 
-            player.setVolume(100);
-        } catch(e) { console.log('Repeat song error.', e, e); }
+            setTimeout(function() {
+                $('.btn__repeatSong').prop('disabled', false);
+                $('.btn__repeatSong').attr('style', "background-color: #28a745!important");
+            }, 2000);
+        } catch(e) { 
+            if(window.urlParams.has('debug')) {
+                console.log('Repeat Song error.')
+                console.log(e); 
+            }
+        }
     }
 
     var checkAnswers = function(game, answers) {
@@ -457,6 +493,8 @@ var index = (function() {
         window.md = md;
 
         var parameters = new URLSearchParams(location.search);
+        window.urlParams = parameters;
+
         if(parameters.has('code')) {
             ui.btn__playGame.click();
         }
@@ -470,7 +508,6 @@ var index = (function() {
 
                 var vconsole = new VConsole();
                 console.log('vconsole initialized.') 
-                console.log('mobile debug:');
             }
         }
 
@@ -483,7 +520,12 @@ var index = (function() {
         $.each(keys, function(i, key) {
             try {
                 localStorage.removeItem(key);
-            } catch(e) { console.log(e); }
+            } catch(e) { 
+                if(window.urlParams.has('debug')) {
+                    console.log('Error on clearing local storage.'); 
+                    console.log(e); 
+                }
+            }
         });
     }
 

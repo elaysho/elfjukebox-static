@@ -100,6 +100,15 @@ var utils = (function() {
         }
     }
 
+    var shuffleArray = function(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+
+        return array;
+    }
+
     return {
         checkInputs,
         getValues,
@@ -107,6 +116,7 @@ var utils = (function() {
         getYoutubeUrlId,
         addParametersToUrl,
         copyToClipBoard,
-        saveToLocalStorage
+        saveToLocalStorage,
+        shuffleArray
     }
 })();

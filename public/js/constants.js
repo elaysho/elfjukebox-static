@@ -57,7 +57,7 @@ var htmlTemplates = (function() {
                                         
     const GAME_HTML = '<div class="d-flex justify-content-between align-items-center">' +
                         '<input type="text" name="answer" class="swal2-input mr-2" placeholder="Write your answer here" data-required="required">' +
-                        '<button class="swal2-confirm swal2-styled btn__repeatSong"> <i data-feather="play"></i> </button>' +
+                        '<button class="swal2-confirm swal2-styled btn__repeatSong" style="background-color: #28a745!important"> <i data-feather="play"></i> </button>' +
                       '</div>';
 
     const GAME_RESULT = '<div class="text-left">' +

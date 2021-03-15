@@ -9,8 +9,8 @@
 }
 
 body {
-    background-color: var(--color-base-white-smoke);
-    background-image: url('../images/bg-patterns/asfalt-dark.png');
+    background-color: var(--color-base-black);
+    /* background-image: url('../images/bg-patterns/asfalt-dark.png'); */
     background-repeat: repeat;
     background-size: 50px;
     color: var(--color-base-black);
@@ -171,6 +171,17 @@ input.input__exampleLink {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 20px;
+    padding: 30px;
     box-sizing: border-box;
+}
+
+.overlay__vidBg {
+    background-color: var(--color-base-black);
+    opacity: 0.5;
+    position: fixed; 
+    top: -20%; 
+    left: -20%; 
+    z-index: -99; 
+    width: 140%; 
+    height: 140%;
 }
