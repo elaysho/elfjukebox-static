@@ -217,7 +217,7 @@ var swalConfigs = (function() {
         showCancelButton: false,
         showCloseButton: true,
         allowOutsideClick: () => false,
-        footer: '<p> <b>Note:</b> If song doesn\'t play, click the repeat button (with 2 second interval) until it does. ' +
+        footer: '<p> <b>Note:</b> If song doesn\'t play, click the play button (with 2 second interval) until it does. ' +
                 ' <b>Don\'t spam though, please!</b> </br></br> Also may not work on mobile <b> specifically on iOS</b>' +
                 ', sorry :( Still looking for a way to fix! </p>'
     }

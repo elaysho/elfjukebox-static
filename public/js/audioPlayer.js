@@ -120,11 +120,18 @@ function onBackgroundPlayerReady() {
             iv_load_policy: 3
         }
     });
+
+    if(osWatchout.includes(window.md.os())) {
+        $('.btn__bgToggle').attr('data-toggle', 'true');
+        $('.btn__bgToggleIcon').attr('data-feather', 'video');
+        $('.btn__bgToggle').attr('title', 'Turn On Background Video');
+
+        feather.replace();
+    }
 }
 
 function adjustBackgroundPlayerSound() {
     var unmute = $(this).attr('data-unmute');
-    console.log(unmute);
 
     if(unmute == 'true') {
         $(this).attr('data-unmute', 'false');
@@ -145,7 +152,6 @@ function adjustBackgroundPlayerSound() {
 
 function toggleBackgroundVideo() {
     var bgoff = $(this).attr('data-toggle');
-    console.log(bgoff);
 
     if(bgoff == 'false') {
         $(this).attr('data-toggle', 'true');
