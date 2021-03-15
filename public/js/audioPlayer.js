@@ -41,7 +41,16 @@ function onYouTubeIframeAPIReady() {
     });
 
     playerJustLoaded = true;
-    onBackgroundPlayerReady();
+
+    if(window.md.mobile() == null) {
+        onBackgroundPlayerReady();
+    } else {
+        $('.btn__bgToggle').attr('data-toggle', 'true');
+        $('.btn__bgToggleIcon').attr('data-feather', 'video');
+        $('.btn__bgToggle').attr('title', 'Turn On Background Video');
+
+        feather.replace();
+    }
 }
 
 function onPlayerReady(event) {
@@ -120,14 +129,6 @@ function onBackgroundPlayerReady() {
             iv_load_policy: 3
         }
     });
-
-    if(osWatchout.includes(window.md.os())) {
-        $('.btn__bgToggle').attr('data-toggle', 'true');
-        $('.btn__bgToggleIcon').attr('data-feather', 'video');
-        $('.btn__bgToggle').attr('title', 'Turn On Background Video');
-
-        feather.replace();
-    }
 }
 
 function adjustBackgroundPlayerSound() {
@@ -169,7 +170,11 @@ function toggleBackgroundVideo() {
         $(this).find('.btn__bgToggleIcon').attr('data-feather', 'video-off');
         $(this).attr('title', 'Turn Off Background Video');
 
-        backgroundPlayer.playVideo();
+        if(backgroundPlayer == null) {
+            onBackgroundPlayerReady();
+        } else {
+            backgroundPlayer.playVideo();
+        }
     }
 
     feather.replace();

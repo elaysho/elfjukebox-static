@@ -61,6 +61,14 @@ body {
     font-size: 32px;
 }
 
+.btn__hostGame:hover {
+    background-color: #e963fe;
+}
+
+.btn__playGame:hover {
+    background-color: #044589;
+}
+
 .swal2-input {
     margin-bottom: .50em!important;
     margin-top: .50em!important;
