@@ -30,7 +30,13 @@ function onYouTubeIframeAPIReady() {
         playerVars: {
             autoplay: 1,
             loop: 0,
-            controls: 0
+            controls: 1,
+            enablejsapi: 1,
+            fs: 0,
+            playsinline: 1,
+            cc_load_policy: 0,
+            disablekb: 1,
+            iv_load_policy: 3
         }
     });
 
@@ -38,7 +44,7 @@ function onYouTubeIframeAPIReady() {
 }
 
 function onPlayerReady(event) {
-    var volume = (osWatchout.includes(window.md.os())) ? 0 : 5;
+    var volume = (osWatchout.includes(window.md.os())) ? 0 : 100;
     console.log(window.md.os(), 'volume: ' + volume);
 
     event.target.setVolume(volume);
@@ -65,4 +71,3 @@ function stopVideo() {
 function playVideo() {
     player.playVideo();
 }
-

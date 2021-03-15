@@ -51,13 +51,13 @@ var htmlTemplates = (function() {
     const GAME_INSTRUCTION = '<div class="text-justify"> <h4>Mechanics:</h4>' +
                                 'Guess which <b><span class="span__groupName"></span></b> ' +
                                 "song is playing after hearing it for a second. Didn't get it on the first try? Don't worry. " +
-                                "You can always play the song again by pressing the replay button. Have fun! <br><br>" + 
+                                "You can always play the song again by pressing the play button. Have fun! <br><br>" + 
                                 '<div class="div__gameInfo text-left"></div>' +
                             "</div>";            
                                         
     const GAME_HTML = '<div class="d-flex justify-content-between align-items-center">' +
                         '<input type="text" name="answer" class="swal2-input mr-2" placeholder="Write your answer here" data-required="required">' +
-                        '<button class="swal2-confirm swal2-styled btn__repeatSong"> <i data-feather="repeat"></i> </button>' +
+                        '<button class="swal2-confirm swal2-styled btn__repeatSong"> <i data-feather="play"></i> </button>' +
                       '</div>';
 
     const GAME_RESULT = '<div class="text-left">' +

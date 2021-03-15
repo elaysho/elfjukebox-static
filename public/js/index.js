@@ -260,11 +260,6 @@ var index = (function() {
             loadGame(code);
 
             gameModalQueues = createSongModalsQueues(gameModalQueues);
-            // if(window.md.mobile() != null) {
-            //     gameModalQueues = createSongModalsQueues(gameModalQueues);
-            // } else {
-            //     console.log('for mobile...');
-            // }
         };
 
         return gameModalQueues;
@@ -273,11 +268,34 @@ var index = (function() {
     var loadGame = function(code) {
         db.collection(gameSettings.DB_KEYS[0])
             .where(gameSettings.GAME_KEYS[0], "==", code).get().then((querySnapshot) => {
-                querySnapshot.forEach((doc) => {
-                  utils.saveToLocalStorage('game', doc.data());
-              });
-            }).catch((error) => {
+                // if(querySnapshot == null) {
+                //     Swal.close();
+                //     Swal.fire({
+                //         icon: 'warning',
+                //         title: 'Oh no!',
+                //         text: 'Sorry :( An error has occured. Maybe the game code you entered doesn\'t ' +
+                //                 ' exist or the game had trouble reading some data. Please try again later.',
+                //         showConfirmButton: false,
+                //         showCloseButton: true,
+                //         timerProgressBar: true,
+                //         timer: 2000
+                //     });
+                // }
 
+                querySnapshot.forEach((doc) => {
+                    utils.saveToLocalStorage('game', doc.data());
+                });
+            }).catch((error) => {
+                Swal.close();
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Oh no!',
+                    text: 'Sorry :( An error has occured. Please try again later.',
+                    showConfirmButton: false,
+                    showCloseButton: true,
+                    timerProgressBar: true,
+                    timer: 2000
+                });
             });
     }
 
@@ -292,6 +310,17 @@ var index = (function() {
                 songModal.preDeny = () => {
                     Swal.clickConfirm();
                 };
+
+                songModal.willOpen = () => {
+                    if(osWatchout.includes(window.md.os())) {
+                        $('#audioPlayer').prependTo('#swal2-content.swal2-html-container');
+                        $('#audioPlayer').prop('width', '560');
+                        $('#audioPlayer').prop('height', '340');
+
+                        var cover = '<div id="iframeCover">For iOS users, please click the play button.</div>';
+                        $(cover).prependTo('#swal2-content.swal2-html-container');
+                    }
+                }
 
                 songModal.didOpen = () => {
                     stopVideo();
@@ -309,7 +338,17 @@ var index = (function() {
                     return new Promise(function (resolve) {
                         resolve(values)
                     });
-                }
+                };
+
+                songModal.willClose = () => {
+                    if(osWatchout.includes(window.md.os())) {
+                        $('#audioPlayer').appendTo('.ejb__mainContainer');
+                        $('#audioPlayer').prop('width', '0');
+                        $('#audioPlayer').prop('height', '0');
+
+                        $('#iframeCover').remove();
+                    }
+                };
 
                 gameModalQueues.push(songModal);
             });
@@ -338,7 +377,7 @@ var index = (function() {
 
             return instructionModal;
         } catch(e) {
-            console.log(e);
+            console.log('Loading instruction error: ' + e.message);
             return loadInsturctionModal();
         }
     }
